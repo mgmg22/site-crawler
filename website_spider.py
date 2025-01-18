@@ -132,7 +132,7 @@ async def scrape_main(urls, output_dir='./screenshots'):
         results = await asyncio.gather(*tasks)
         return results
     except Exception as e:
-        logger.error("主程序异常:", e, exc_info=True)
+        logger.error("主程序异常: %s", e, exc_info=True)
     finally:
         if browser:
             await browser.close()
