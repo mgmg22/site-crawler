@@ -84,7 +84,8 @@ def read_kv_keys():
 
 
 if __name__ == '__main__':
-    result = upload_file('screenshots/www-yeschat-ai.png')
+    site_name = "www-yeschat-ai"
+    result = upload_file(f'screenshots/{site_name}.png')
     print(result)
     if "src" in result:
         key = result["src"]
@@ -95,7 +96,7 @@ if __name__ == '__main__':
             "TimeStamp": int(time.time() * 1000),
             "liked": True
         }
-        write_to_cloudflare_kv(key, "test", metadata)
+        write_to_cloudflare_kv(key, site_name, metadata)
         read_kv_keys()
     else:
         print("Error uploading image. Unable to write to KV")

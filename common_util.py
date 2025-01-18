@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class CommonUtil:
-    def detail_handle(self,detail):
+    def detail_handle(self, detail):
         if detail:
             index1 = detail.find("#")
             index2 = detail.find("*")
@@ -36,10 +36,9 @@ class CommonUtil:
     def get_name_by_url(url):
         if url:
             domain = urlparse(url).netloc
-            path= urlparse(url).path
+            path = urlparse(url).path
             if path and path.endswith("/"):
                 path = path[:-1]
-            return (domain.replace("www.","") + path.replace("/", "-")).replace(".", "-")
+            return (domain.replace("www.", "") + path.replace("/", "-")).replace(".", "-")
         else:
             return None
-
