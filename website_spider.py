@@ -3,6 +3,7 @@ import logging
 import os
 import random
 import time
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 from pyppeteer import launch
@@ -52,6 +53,7 @@ async def scrape_website(url, browser, output_dir='./screenshots'):
         soup = BeautifulSoup(origin_content, 'html.parser')
         title = soup.title.string.strip() if soup.title else ''
         name = CommonUtil.get_name_by_url(url)
+        logger.info(f"生成的站点名称: {name}")
 
         description = ''
         meta_description = soup.find('meta', attrs={'name': 'description'})
@@ -75,11 +77,14 @@ async def scrape_website(url, browser, output_dir='./screenshots'):
         actual_width = min(width, dimensions['width'])
         actual_height = min(height, dimensions['height'])
 
-        filename = url.replace("https://", "").replace("http://", "").replace("/", "").replace(".", "-") + '.png'
-        os.makedirs(output_dir, exist_ok=True)
-        screenshot_path = os.path.join(output_dir, filename)
+        # 使用相对路径
+        output_path = Path(output_dir)
+        screenshot_path = output_path / f"{name}.png"
 
-        await page.screenshot({'path': screenshot_path, 'clip': {
+        # 确保输出目录存在
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        await page.screenshot({'path': str(screenshot_path), 'clip': {
             'x': 0,
             'y': 0,
             'width': actual_width,
@@ -95,13 +100,13 @@ async def scrape_website(url, browser, output_dir='./screenshots'):
             'description': description,
         }
     except Exception as e:
-        logger.error("处理" + url + "站点异常，错误信息:", e, exc_info=True)
+        logger.error(f"处理 {url} 站点异常，错误信息: {str(e)}", exc_info=True)
         return None
     finally:
         if page:
             await page.close()
         execution_time = int(time.time()) - start_time
-        logger.info("处理" + url + "用时：" + str(execution_time) + " 秒")
+        logger.info(f"处理 {url} 用时：{execution_time} 秒")
 
 
 async def scrape_main(urls, output_dir='./screenshots'):
