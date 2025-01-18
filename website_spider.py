@@ -4,6 +4,7 @@ import os
 import random
 import time
 from pathlib import Path
+import platform
 
 from bs4 import BeautifulSoup
 from pyppeteer import launch
@@ -30,8 +31,11 @@ global_agent_headers = [
     "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.04 Chromium/16.0.912.77 Chrome/16.0.912.77 Safari/535.7",
     "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0 "
 ]
-# 构建 Chromium 可执行文件路径 (Windows)
-chromium_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chrome-win", "chrome.exe")
+# 构建 Chromium 可执行文件路径 (Windows 和 Linux)
+if platform.system() == "Windows":
+    chromium_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chrome-win", "chrome.exe")
+else:
+    chromium_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chrome-linux", "chrome")
 
 
 async def scrape_website(url, browser, output_dir='./screenshots'):
