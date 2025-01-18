@@ -1,3 +1,9 @@
+#!/bin/env python3
+# -*- coding: utf-8 -*
+"""
+cron: 2 0 0 * * 6 run_spider_and_upload.py
+new Env('网站爬虫');
+"""
 import asyncio
 from website_spider import scrape_main
 from img_upload import upload_file
