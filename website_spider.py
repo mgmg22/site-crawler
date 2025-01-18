@@ -104,7 +104,7 @@ async def scrape_website(url, browser, output_dir='./screenshots'):
         logger.info("处理" + url + "用时：" + str(execution_time) + " 秒")
 
 
-async def main(urls, output_dir='./screenshots'):
+async def scrape_main(urls, output_dir='./screenshots'):
     """
     主函数，用于管理浏览器实例，批量抓取网站信息
     """
@@ -127,9 +127,3 @@ async def main(urls, output_dir='./screenshots'):
     finally:
         if browser:
             await browser.close()
-
-
-if __name__ == '__main__':
-    urls_to_scrape = ["https://www.yeschat.ai/"]
-    results = asyncio.run(main(urls_to_scrape))
-    print("抓取结果:", results)
