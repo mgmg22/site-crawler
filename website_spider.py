@@ -33,7 +33,8 @@ global_agent_headers = [
 ]
 # 构建 Chromium 可执行文件路径 (Windows 和 Linux)
 if platform.system() == "Windows":
-    chromium_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chrome-win", "chrome.exe")
+    chromium_path = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), "chrome-win", "chrome.exe")
 else:
     chromium_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chrome-linux", "chrome")
 
