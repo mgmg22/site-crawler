@@ -19,7 +19,7 @@ async def run(urls, output_dir='./siteshots'):
         if result and 'name' in result:
             img_name = result['name']
             uploader = ImageUploader(str(output_path), img_name)
-            upload_result = uploader.upload_and_maybe_write_kv(write_kv=True)
+            upload_result = uploader.upload_and_write_kv(write_kv=True)
             if "src" in upload_result:
                 print(f"上传成功: {upload_result['src']}")
                 kv_result = uploader.read_kv_keys()
@@ -33,5 +33,5 @@ async def run(urls, output_dir='./siteshots'):
             print("结果数据无效，跳过上传")
 
 if __name__ == '__main__':
-    urls_to_scrape = ["https://dunlin.ai/"]
+    urls_to_scrape = ["https://tldv.io/"]
     asyncio.run(run(urls_to_scrape))
