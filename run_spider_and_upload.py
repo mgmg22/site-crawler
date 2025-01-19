@@ -6,10 +6,8 @@ new Env('网站爬虫');
 """
 import asyncio
 from website_spider import scrape_main
-from img_upload import upload_file
-from img_upload import write_to_cloudflare_kv
-from img_upload import read_kv_keys
 from pathlib import Path
+from img_upload import ImageUploader
 
 
 async def run(urls, output_dir='./siteshots'):
@@ -19,24 +17,16 @@ async def run(urls, output_dir='./siteshots'):
     print("抓取结果:", scrape_main_results)
     for result in scrape_main_results:
         if result and 'name' in result:
-            site_name = result['name']
-            file_path = output_path / f"{site_name}.png"
-            if file_path.exists():
-                print(f"正在上传文件: {file_path}")
-                upload_result = upload_file(str(file_path))
-                if "src" in upload_result:
-                    key = upload_result["src"]
-                    print(f"写入 KV: {key} -> {site_name}")
-                    write_to_cloudflare_kv(key, site_name)
-                    read_kv_keys()
-                else:
-                    print(f"上传失败: {upload_result.get('error', '未知错误')}")
+            img_name = result['name']
+            uploader = ImageUploader(str(output_path), img_name)
+            upload_result = uploader.upload_and_maybe_write_kv(write_kv=True)
+            if "src" in upload_result:
+                print(f"上传成功: {upload_result['src']}")
             else:
-                print(f"文件不存在: {file_path}")
-                print(f"当前工作目录: {Path.cwd()}")
+                print(f"上传失败: {upload_result.get('error', '未知错误')} - 完整错误信息: {upload_result}")
         else:
             print("结果数据无效，跳过上传")
 
 if __name__ == '__main__':
-    urls_to_scrape = ["https://chat01.ai/"]
+    urls_to_scrape = ["https://formalizertool.com/"]
     asyncio.run(run(urls_to_scrape))
