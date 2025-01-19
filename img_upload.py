@@ -88,18 +88,18 @@ class ImageUploader:
             return upload_result  # 返回上传结果
         return upload_result  # 返回上传错误
 
-
-def read_kv_keys():
-    api_url = f'https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces/{CLOUDFLARE_NAMESPACE_ID}/keys'
-    headers = {
-        'Authorization': f'Bearer {CLOUDFLARE_API_TOKEN}',
-    }
-    try:
-        response = requests.get(api_url, headers=headers)
-        data = response.json()
-        for item in data["result"]:
-            print(f"Name: {item['name']}, Metadata: {item.get('metadata', 'No metadata')}")
-        response.raise_for_status()
-        return {'success': True}
-    except requests.exceptions.RequestException as e:
-        return {'error': f'Failed to write to Cloudflare KV: {e}'}
+    def read_kv_keys(self):
+        api_url = f'https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces/{CLOUDFLARE_NAMESPACE_ID}/keys'
+        headers = {
+            'Authorization': f'Bearer {CLOUDFLARE_API_TOKEN}',
+        }
+        try:
+            response = requests.get(api_url, headers=headers)
+            data = response.json()
+            kv_keys = []
+            for item in data["result"]:
+                kv_keys.append({'name': item['name'], 'metadata': item.get('metadata', 'No metadata')})
+            response.raise_for_status()
+            return {'success': True, 'keys': kv_keys}
+        except requests.exceptions.RequestException as e:
+            return {'error': f'Failed to read from Cloudflare KV: {e}'}
