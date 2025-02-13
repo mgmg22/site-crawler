@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class SupabaseArticlesWriter:
     """用于向 Supabase articles 表写入数据的工具类"""
 
@@ -85,3 +86,29 @@ class SupabaseArticlesWriter:
             self.logger.error(error_msg)
             raise Exception(error_msg)
 
+    async def get_all_materials_last_questions(self) -> list[Dict[str, Any]]:
+        """
+        从 articles 表中查询所有材料的 last_question
+
+        Returns:
+            list[Dict[str, Any]]: 包含 materials 和 last_question 的字典列表
+        """
+        try:
+            response = self.client.table('articles')\
+                .select('materials, last_question, id')\
+                .neq('last_question', None)\
+                .execute()
+
+            result = response.data
+
+            if not result:
+                self.logger.info("未找到任何带有 last_question 的材料")
+                return []
+
+            self.logger.info(f"查询结果: {result}")
+            return result
+
+        except Exception as e:
+            error_msg = f"查询材料的 last_question 时发生错误: {str(e)}"
+            self.logger.error(error_msg)
+            raise Exception(error_msg)
