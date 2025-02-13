@@ -81,8 +81,6 @@ class SupabaseArticlesWriter:
 
             if not result.data:
                 raise Exception("插入数据后未返回结果")
-
-            self.logger.info(f"成功插入文章: {result.data[0].get('id')}")
             return result.data[0]
 
         except Exception as e:
