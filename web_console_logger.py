@@ -4,7 +4,15 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 import logging
 import time
-import json  # 在文件顶部添加此导入
+import json
+from supabase_articles_writer import SupabaseArticlesWriter
+import asyncio
+from logger_base import LoggerBase
+
+
+class WebConsoleLogger(LoggerBase):
+    """Web控制台日志记录器"""
+    pass
 
 
 def setup_logger():
@@ -94,6 +102,19 @@ def convert_json(original_json):
         return None
 
 
+async def process_article_data(article_data: dict):
+    """处理并保存文章数据到 Supabase"""
+    try:
+        writer = SupabaseArticlesWriter()
+        result = await writer.insert_article(article_data)
+        if result:
+            logging.info(f"成功保存文章到数据库，ID: {result.get('id')}")
+        return result
+    except Exception as e:
+        logging.error(f"保存文章到数据库时出错: {str(e)}")
+        raise
+
+
 def main():
     logger = setup_logger()
     logger.info("启动无头浏览器...")
@@ -120,7 +141,6 @@ def main():
         )
 
         # 执行JavaScript来获取控制台输出
-        logger.info("注入控制台监听器...")
         driver.execute_script("""
             console.defaultLog = console.log.bind(console);
             console.logs = [];
@@ -137,18 +157,18 @@ def main():
         time.sleep(5)  # 增加等待时间确保页面完全加载
 
         # 获取注入的日志
-        logger.info("获取控制台日志...")
         console_logs = driver.execute_script("return console.logs")
         if console_logs:
             logger.info("控制台输出内容：")
             for log in console_logs:
                 if log and len(log) > 0 and isinstance(log[0], list):
-                    # 转换并优化JSON数据
                     optimized_data = convert_json(log[0][0])
                     if optimized_data:
-                        # 格式化输出优化后的JSON
                         formatted_json = json.dumps(optimized_data, ensure_ascii=False, indent=2)
                         print(f"阅读所有materials ，根据last_question的要求作答\n{formatted_json}")
+
+                        # 使用异步函数保存数据
+                        asyncio.run(process_article_data(optimized_data))
         else:
             logger.info("没有发现控制台输出")
 
