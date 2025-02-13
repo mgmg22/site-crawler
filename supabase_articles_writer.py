@@ -105,7 +105,6 @@ class SupabaseArticlesWriter:
                 self.logger.info("未找到任何带有 last_question 的材料")
                 return []
 
-            self.logger.info(f"查询结果: {result}")
             return result
 
         except Exception as e:
