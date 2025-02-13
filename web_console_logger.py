@@ -8,6 +8,7 @@ import json
 from supabase_articles_writer import SupabaseArticlesWriter
 import asyncio
 from logger_base import LoggerBase
+import requests
 
 
 class WebConsoleLogger(LoggerBase):
@@ -115,15 +116,13 @@ async def process_article_data(article_data: dict):
         raise
 
 
-def main():
+def get_console():
     logger = setup_logger()
     logger.info("启动无头浏览器...")
     driver = None
 
     try:
         driver = create_headless_driver()
-
-        # Cookie字符串
         cookie_string = 'sid=2324896; persistent=oMIwhl22q4RhXbaKYXdyqGkwB6WgmtWUWeqtSsRKUxhKCwdU2UxZCCM0u1+1GLoUbl+ntKmozzhE438rEEZsug==; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTkxZjhiNjllNDg3ZmUtMGZjNWI0ZDliOTEwODEtMTUzMTMzNzQtMjA3MzYwMC0xOTFmOGI2OWU0OThiZCJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%7D; acw_tc=0b6e704217394347214193465eaf0e29dfb0a7c67910902258a65841e31560; sess=11qnYqL/5HBUzd/JWa4ZGvYdy+3nX81cAvxACdAbKnEYvdcd8wPN9PtXqPrUbAWva8x8OMqPOctAh2cIOcscQGwVL9hkkV2oUFk4yNFzd5Y=; userid=122460950'
 
         # 添加cookie
@@ -136,7 +135,7 @@ def main():
         driver.get(target_url)
 
         # 等待页面加载完成
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 8).until(
             lambda d: d.execute_script('return document.readyState') == 'complete'
         )
 
@@ -181,5 +180,49 @@ def main():
             driver.quit()
 
 
+def get_list():
+    try:
+        logger = setup_logger()
+
+        # API接口地址
+        api_url = 'https://tiku.fenbi.com/api/shenlun/papers?labelId=131&toPage=0&kav=100&av=100&hav=100&app=web'
+
+        # 设置请求头
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Cookie': 'sid=2324896; persistent=oMIwhl22q4RhXbaKYXdyqGkwB6WgmtWUWeqtSsRKUxhKCwdU2UxZCCM0u1+1GLoUbl+ntKmozzhE438rEEZsug==; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTkxZjhiNjllNDg3ZmUtMGZjNWI0ZDliOTEwODEtMTUzMTMzNzQtMjA3MzYwMC0xOTFmOGI2OWU0OThiZCJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%7D; acw_tc=0b6e704217394347214193465eaf0e29dfb0a7c67910902258a65841e31560; sess=11qnYqL/5HBUzd/JWa4ZGvYdy+3nX81cAvxACdAbKnEYvdcd8wPN9PtXqPrUbAWva8x8OMqPOctAh2cIOcscQGwVL9hkkV2oUFk4yNFzd5Y=; userid=122460950',
+            'Accept': 'application/json',
+            'Referer': 'https://spa.fenbi.com/',
+            'Origin': 'https://spa.fenbi.com'
+        }
+
+        response = requests.get(api_url, headers=headers)
+        # 检查响应状态
+        response.raise_for_status()
+        # 解析JSON数据
+        paper_data = response.json()
+        # 构造新的列表
+        simplified_list = [{
+            'topic': item['topic'],
+            'name': item['name'],
+            'id': item['id'],
+            'encodeCheckInfo': item['encodeCheckInfo']
+        } for item in paper_data['list']]
+
+        # 格式化输出
+        formatted_json = json.dumps(simplified_list, ensure_ascii=False)
+        print(f"试卷列表数据：\n{formatted_json}")
+
+        return simplified_list
+
+    except requests.RequestException as e:
+        logger.error(f"请求失败: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"发生未知错误: {str(e)}")
+        return None
+
+
 if __name__ == "__main__":
-    main()
+    # get_console()
+    get_list()
