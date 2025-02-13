@@ -74,6 +74,25 @@ def add_cookies(driver, cookie_string):
             })
 
 
+def convert_json(original_json):
+    """转换并优化JSON数据结构"""
+    try:
+        # 获取最后一个问题
+        last_question = original_json['questions'][-1]
+        # 优化materials，只保留content字段
+        optimized_materials = [material['content'] for material in original_json['materials']]
+
+        return {
+            'name': last_question['source'].replace('（网友回忆版）', ''),
+            'materials': optimized_materials,
+            # 'questions': last_question['content'],
+            'last_question': last_question['accessories'][0]['title']
+        }
+    except Exception as e:
+        logging.error(f"转换JSON时发生错误: {str(e)}")
+        return None
+
+
 def main():
     logger = setup_logger()
     logger.info("启动无头浏览器...")
@@ -91,7 +110,7 @@ def main():
         # 访问目标页面
         logger.info("正在访问目标页面...")
         # target_url = 'https://spa.fenbi.com/shenlun/list/shenlun/1000'
-        target_url = 'https://spa.fenbi.com/shenlun/zhenti/shenlun/7601181?checkId=CW0Q7Vdhsw'
+        target_url = 'https://spa.fenbi.com/shenlun/zhenti/shenlun/7900381?checkId=CWIQ7FVhsw'
         driver.get(target_url)
 
         # 等待页面加载完成
@@ -123,11 +142,12 @@ def main():
             logger.info("控制台输出内容：")
             for log in console_logs:
                 if log and len(log) > 0 and isinstance(log[0], list):
-                    # 使用json.dumps格式化输出，设置ensure_ascii=False以正确显示中文，indent=2使输出更易读
-                    materials_json = json.dumps(log[0][0]['materials'],ensure_ascii=False)
-                    print(f"[LOG materials]\n{materials_json}")
-                    questions_json = json.dumps(log[0][0]['questions'],ensure_ascii=False)
-                    print(f"[LOG questions]\n{questions_json}")
+                    # 转换并优化JSON数据
+                    optimized_data = convert_json(log[0][0])
+                    if optimized_data:
+                        # 格式化输出优化后的JSON
+                        formatted_json = json.dumps(optimized_data, ensure_ascii=False, indent=2)
+                        print(f"阅读所有materials ，根据last_question的要求作答\n{formatted_json}")
         else:
             logger.info("没有发现控制台输出")
 
