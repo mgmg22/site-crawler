@@ -2,9 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import logging
 import time
+import json  # 在文件顶部添加此导入
 
 
 def setup_logger():
@@ -123,7 +123,11 @@ def main():
             logger.info("控制台输出内容：")
             for log in console_logs:
                 if log and len(log) > 0 and isinstance(log[0], list):
-                    print(f"[LOG] {log[0][0]}")  # 只打印数组的第一个元素
+                    # 使用json.dumps格式化输出，设置ensure_ascii=False以正确显示中文，indent=2使输出更易读
+                    materials_json = json.dumps(log[0][0]['materials'],ensure_ascii=False)
+                    print(f"[LOG materials]\n{materials_json}")
+                    questions_json = json.dumps(log[0][0]['questions'],ensure_ascii=False)
+                    print(f"[LOG questions]\n{questions_json}")
         else:
             logger.info("没有发现控制台输出")
 
