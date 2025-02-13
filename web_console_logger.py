@@ -81,11 +81,12 @@ def convert_json(original_json):
         last_question = original_json['questions'][-1]
         # 优化materials，只保留content字段
         optimized_materials = [material['content'] for material in original_json['materials']]
+        optimized_questions = [questions['content'] for questions in original_json['questions']]
 
         return {
             'name': last_question['source'].replace('（网友回忆版）', ''),
             'materials': optimized_materials,
-            # 'questions': last_question['content'],
+            'questions': optimized_questions,
             'last_question': last_question['accessories'][0]['title']
         }
     except Exception as e:
