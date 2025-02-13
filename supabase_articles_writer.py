@@ -5,7 +5,6 @@ from datetime import datetime
 from logger_base import LoggerBase
 from dotenv import load_dotenv
 
-# 在类定义前加载环境变量
 load_dotenv()
 
 class SupabaseArticlesWriter:
@@ -63,7 +62,6 @@ class SupabaseArticlesWriter:
             Exception: 当插入操作失败时抛出
         """
         try:
-            # 首先检查文章是否已存在
             name = article_data.get('name')
             if not name:
                 raise ValueError("文章数据中缺少标题")
@@ -73,7 +71,6 @@ class SupabaseArticlesWriter:
                 self.logger.info(f"文章 '{name}' 已存在，跳过插入")
                 return None
 
-            # 添加创建时间戳
             article_data['created_at'] = datetime.utcnow().isoformat()
 
             # 执行插入操作
