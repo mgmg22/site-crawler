@@ -110,39 +110,66 @@ def get_list():
     try:
         logger = setup_logger()
         driver = None
-
-        # API接口地址
-        api_url = 'https://tiku.fenbi.com/api/shenlun/papers?labelId=131&toPage=0&kav=100&av=100&hav=100&app=web'
-
-        # 设置请求头
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Cookie': 'sid=2324896; persistent=oMIwhl22q4RhXbaKYXdyqGkwB6WgmtWUWeqtSsRKUxhKCwdU2UxZCCM0u1+1GLoUbl+ntKmozzhE438rEEZsug==; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTkxZjhiNjllNDg3ZmUtMGZjNWI0ZDliOTEwODEtMTUzMTMzNzQtMjA3MzYwMC0xOTFmOGI2OWU0OThiZCJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%7D; acw_tc=0b6e704217394347214193465eaf0e29dfb0a7c67910902258a65841e31560; sess=11qnYqL/5HBUzd/JWa4ZGvYdy+3nX81cAvxACdAbKnEYvdcd8wPN9PtXqPrUbAWva8x8OMqPOctAh2cIOcscQGwVL9hkkV2oUFk4yNFzd5Y=; userid=122460950',
-            'Accept': 'application/json',
-            'Referer': 'https://spa.fenbi.com/',
-            'Origin': 'https://spa.fenbi.com'
-        }
+        all_papers = []  # 存储所有页面的试卷数据
 
         try:
-            response = requests.get(api_url, headers=headers)
+            # 设置请求头
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Cookie': 'sid=2324896; persistent=oMIwhl22q4RhXbaKYXdyqGkwB6WgmtWUWeqtSsRKUxhKCwdU2UxZCCM0u1+1GLoUbl+ntKmozzhE438rEEZsug==; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTkxZjhiNjllNDg3ZmUtMGZjNWI0ZDliOTEwODEtMTUzMTMzNzQtMjA3MzYwMC0xOTFmOGI2OWU0OThiZCJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%7D; acw_tc=0b6e704217394347214193465eaf0e29dfb0a7c67910902258a65841e31560; sess=11qnYqL/5HBUzd/JWa4ZGvYdy+3nX81cAvxACdAbKnEYvdcd8wPN9PtXqPrUbAWva8x8OMqPOctAh2cIOcscQGwVL9hkkV2oUFk4yNFzd5Y=; userid=122460950',
+                'Accept': 'application/json',
+                'Referer': 'https://spa.fenbi.com/',
+                'Origin': 'https://spa.fenbi.com'
+            }
+
+            # 获取第一页数据和总页数信息
+            first_page_url = 'https://tiku.fenbi.com/api/shenlun/papers?labelId=131&toPage=0&kav=100&av=100&hav=100&app=web'
+            response = requests.get(first_page_url, headers=headers)
             response.raise_for_status()
-            paper_data = response.json()
-            simplified_list = [{
-                'topic': item['topic'],
-                'name': item['name'],
-                'id': item['id'],
-                'encodeCheckInfo': item['encodeCheckInfo']
-            } for item in paper_data['list']]
+            first_page_data = response.json()
+
+            total_pages = first_page_data['pageInfo']['totalPage']
+            logger.info(f"总页数: {total_pages}")
+
+            # 处理所有页面的数据
+            for page in range(total_pages):
+                logger.info(f"正在获取第 {page + 1}/{total_pages} 页数据")
+
+                if page > 0:  # 第一页已经获取过了
+                    page_url = f'https://tiku.fenbi.com/api/shenlun/papers?labelId=131&toPage={page}&kav=100&av=100&hav=100&app=web'
+                    response = requests.get(page_url, headers=headers)
+                    response.raise_for_status()
+                    page_data = response.json()
+                else:
+                    page_data = first_page_data
+
+                # 提取当前页的试卷列表
+                current_page_papers = [{
+                    'topic': item['topic'],
+                    'name': item['name'],
+                    'id': item['id'],
+                    'encodeCheckInfo': item['encodeCheckInfo']
+                } for item in page_data['list']]
+
+                all_papers.extend(current_page_papers)
+                logger.info(f"第 {page + 1} 页获取到 {len(current_page_papers)} 份试卷")
+
+                # 如果不是最后一页，等待一小段时间再请求下一页
+                if page < total_pages - 1:
+                    time.sleep(2)  # 添加2秒延迟，避免请求过于频繁
+
+            logger.info(f"共获取到 {len(all_papers)} 份试卷信息")
 
             # 创建一个共享的浏览器实例
             driver = create_headless_driver()
             cookie_string = 'sid=2324896; persistent=oMIwhl22q4RhXbaKYXdyqGkwB6WgmtWUWeqtSsRKUxhKCwdU2UxZCCM0u1+1GLoUbl+ntKmozzhE438rEEZsug==; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTkxZjhiNjllNDg3ZmUtMGZjNWI0ZDliOTEwODEtMTUzMTMzNzQtMjA3MzYwMC0xOTFmOGI2OWU0OThiZCJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22191f8b69e487fe-0fc5b4d9b91081-15313374-2073600-191f8b69e498bd%22%7D; acw_tc=0b6e704217394347214193465eaf0e29dfb0a7c67910902258a65841e31560; sess=11qnYqL/5HBUzd/JWa4ZGvYdy+3nX81cAvxACdAbKnEYvdcd8wPN9PtXqPrUbAWva8x8OMqPOctAh2cIOcscQGwVL9hkkV2oUFk4yNFzd5Y=; userid=122460950'
             add_cookies(driver, cookie_string)
 
-            # 遍历处理每个试卷，使用同一个浏览器实例
-            for index, simplified in enumerate(simplified_list):
+            # 遍历处理所有试卷
+            for index, simplified in enumerate(all_papers):
                 try:
-                    logger.info(f"正在处理第 {index + 1}/{len(simplified_list)} 个试卷...")
+                    logger.info(f"正在处理第 {index + 1}/{len(all_papers)} 个试卷: {simplified['name']}")
+
                     # 访问目标页面
                     target_url = f'https://spa.fenbi.com/shenlun/zhenti/shenlun/{simplified["id"]}?checkId={simplified["encodeCheckInfo"]}'
                     driver.get(target_url)
@@ -181,7 +208,7 @@ def get_list():
                         logger.info("没有发现控制台输出")
 
                     # 在每次循环结束后等待30秒
-                    if index < len(simplified_list) - 1:  # 如果不是最后一个元素
+                    if index < len(all_papers) - 1:  # 如果不是最后一个元素
                         logger.info("等待30秒后处理下一个试卷...")
                         time.sleep(30)
 
@@ -189,7 +216,7 @@ def get_list():
                     logger.error(f"处理试卷 {simplified['name']} 时发生错误: {str(e)}")
                     continue  # 继续处理下一个试卷
 
-            return simplified_list
+            return all_papers
 
         except requests.RequestException as e:
             logger.error(f"请求失败: {str(e)}")
