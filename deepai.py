@@ -17,9 +17,6 @@ def parse_response(response):
 
 
 def call_ai_api(prompt, model='deepseek-r1'):
-    """
-    调用腾讯云 AI API。
-    """
     if not API_KEY:
         raise ValueError("DEEP_API_KEY 未配置")
 
@@ -51,7 +48,7 @@ def call_ai_api(prompt, model='deepseek-r1'):
 
     except requests.exceptions.HTTPError as e:
         try:
-            error_data = response.json()  # 尝试解析错误响应
+            error_data = response.json()
             error_message = error_data.get('error', {}).get('message', response.reason)
         except:
             error_message = response.reason

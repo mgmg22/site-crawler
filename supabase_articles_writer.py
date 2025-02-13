@@ -95,7 +95,7 @@ class SupabaseArticlesWriter:
         """
         try:
             response = self.client.table('articles')\
-                .select('materials, last_question, id')\
+                .select('materials, questions, last_question, id')\
                 .neq('last_question', None)\
                 .execute()
 
