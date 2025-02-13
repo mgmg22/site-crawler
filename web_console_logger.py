@@ -65,11 +65,13 @@ def convert_json(original_json):
         last_question = original_json['questions'][-1]
         optimized_materials = [material['content'] for material in original_json['materials']]
         optimized_questions = [questions['content'] for questions in original_json['questions']]
+        optimized_solutions = [solutions['reference'] for solutions in original_json['solutions']]
 
         return {
             'name': last_question['source'].replace('（网友回忆版）', ''),
             'materials': optimized_materials,
             'questions': optimized_questions,
+            'solutions': optimized_solutions,
             'last_question': last_question['accessories'][0]['title']
         }
     except Exception as e:
@@ -87,6 +89,7 @@ async def process_article_data(labelId, simplified, article_data: dict):
             'name': article_data['name'],
             'materials': article_data['materials'],
             'questions': article_data['questions'],
+            'solutions': article_data['solutions'],
             'last_question': article_data['last_question'],
         }
         result = await writer.insert_article(insert_data)
