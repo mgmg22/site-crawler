@@ -10,11 +10,11 @@ async def main():
         writer = SupabaseArticlesWriter(logger=logger)
         results = await writer.get_all_materials_last_questions(labelId=101)
         if results:
-            item = results[2]
-            ai_response = call_ai(item)
-            print("AI 思考:", ai_response['reasoning_content'])
-            print("AI 回复:", ai_response['content'])
-            await writer.update_article_think_answer(item['id'], ai_response['reasoning_content'], ai_response['content'])
+            for item in results:
+                ai_response = call_ai(item)
+                print("AI 思考:", ai_response['reasoning_content'])
+                # print("AI 回复:", ai_response['content'])
+                await writer.update_article_think_answer(item['id'], ai_response['reasoning_content'], ai_response['content'].lstrip('\n'))
         else:
             print("无数据。")
     except Exception as e:
