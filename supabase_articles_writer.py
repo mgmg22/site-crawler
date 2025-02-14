@@ -86,23 +86,30 @@ class SupabaseArticlesWriter:
             self.logger.error(error_msg)
             raise Exception(error_msg)
 
-    async def get_all_materials_last_questions(self) -> list[Dict[str, Any]]:
+    async def get_all_materials_last_questions(self, labelId: Optional[int] = None) -> list[Dict[str, Any]]:
         """
-        从 articles 表中查询所有材料的 last_question
+        从 articles 表中查询所有材料的 last_question，可选根据 label_id 过滤
+
+        Args:
+            labelId: 可选的标签ID，用于过滤特定标签的文章
 
         Returns:
             list[Dict[str, Any]]: 包含 materials 和 last_question 的字典列表
         """
         try:
-            response = self.client.table('articles')\
+            query = self.client.table('articles')\
                 .select('materials, questions, last_question, id')\
-                .neq('last_question', None)\
-                .execute()
+                .neq('last_question', None)
 
+            if labelId is not None:
+                query = query.eq('labelId', labelId)
+
+            response = query.execute()
             result = response.data
 
             if not result:
-                self.logger.info("未找到任何带有 last_question 的材料")
+                if labelId is not None:
+                    log_message += f" (labelId: {labelId})"
                 return []
 
             return result
