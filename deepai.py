@@ -41,11 +41,12 @@ def call_ai_api(prompt, model='deepseek-r1'):
             raise ValueError('AI 服务返回结果为空')
 
         # 打印 reasoning_content （如果存在）
-        reasoning_content = result['choices'][0]['message'].get('reasoning_content')
-        if reasoning_content:
-            print("deepseek reasoning_content:", reasoning_content)
+        # reasoning_content = result['choices'][0]['message'].get('reasoning_content')
+        # if reasoning_content:
+        #     print("deepseek reasoning_content:", reasoning_content)
 
-        return parse_response(result['choices'][0]['message']['content'])
+        # return result['choices'][0]['message']['content']
+        return result['choices'][0]['message']
 
     except requests.exceptions.HTTPError as e:
         try:
