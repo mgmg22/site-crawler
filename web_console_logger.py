@@ -65,7 +65,7 @@ def convert_json(original_json):
         last_question = original_json['questions'][-1]
         optimized_materials = [material['content'] for material in original_json['materials']]
         optimized_questions = [questions['content'] for questions in original_json['questions']]
-        optimized_solutions = [solutions['reference'] for solutions in original_json['solutions']]
+        optimized_solutions = [solutions.get('reference', '') for solutions in original_json['solutions']]
 
         return {
             'name': last_question['source'].replace('（网友回忆版）', ''),
@@ -116,26 +116,26 @@ def get_list(labelId):
                 'Origin': 'https://spa.fenbi.com'
             }
 
-            # 获取第一页数据和总页数信息
-            first_page_url = f'https://tiku.fenbi.com/api/shenlun/papers?labelId={labelId}&toPage=0&kav=100&av=100&hav=100&app=web'
+            first_page = 0
+            first_page_url = f'https://tiku.fenbi.com/api/shenlun/papers?labelId={labelId}&toPage={first_page}&kav=100&av=100&hav=100&app=web'
             response = requests.get(first_page_url, headers=headers)
             response.raise_for_status()
             first_page_data = response.json()
 
             total_pages = first_page_data['pageInfo']['totalPage']
-            logger.info(f"总页数: {total_pages}")
+            logger.info(f"从第 {first_page + 1} 页开始，总页数: {total_pages}")
 
             # 处理所有页面的数据
-            for page in range(total_pages):
+            for page in range(first_page, total_pages):
                 logger.info(f"正在获取第 {page + 1}/{total_pages} 页数据")
 
-                if page > 0:  # 第一页已经获取过了
+                if page == first_page:
+                    page_data = first_page_data
+                else:
                     page_url = f'https://tiku.fenbi.com/api/shenlun/papers?labelId={labelId}&toPage={page}&kav=100&av=100&hav=100&app=web'
                     response = requests.get(page_url, headers=headers)
                     response.raise_for_status()
                     page_data = response.json()
-                else:
-                    page_data = first_page_data
 
                 # 提取当前页的试卷列表
                 current_page_papers = [{
@@ -196,10 +196,10 @@ def get_list(labelId):
                     else:
                         logger.info("没有发现控制台输出")
 
-                    # 在每次循环结束后等待30秒
+                    # 在每次循环结束后等待15秒
                     if index < len(all_papers) - 1:  # 如果不是最后一个元素
-                        logger.info("等待30秒后处理下一个试卷...")
-                        time.sleep(30)
+                        logger.info("等待15秒后处理下一个试卷...")
+                        time.sleep(15)
 
                 except Exception as e:
                     logger.error(f"处理试卷 {simplified['name']} 时发生错误: {str(e)}")
@@ -221,4 +221,4 @@ def get_list(labelId):
 
 
 if __name__ == "__main__":
-    get_list(131)
+    get_list(101)
