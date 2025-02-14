@@ -118,3 +118,42 @@ class SupabaseArticlesWriter:
             error_msg = f"查询材料的 last_question 时发生错误: {str(e)}"
             self.logger.error(error_msg)
             raise Exception(error_msg)
+
+    async def update_article_think_answer(self, article_id: str, think: str, answer: str) -> Dict[str, Any]:
+        """
+        根据文章ID更新think和answer字段
+
+        Args:
+            article_id: 文章ID (UUID格式)
+            think: 思考内容
+            answer: 回答内容
+
+        Returns:
+            Dict[str, Any]: 更新后的文章数据
+
+        Raises:
+            Exception: 当更新操作失败时抛出
+        """
+        try:
+            if not article_id:
+                raise ValueError("缺少文章ID")
+
+            update_data = {
+                'think': think,
+                'answer': answer
+            }
+
+            result = self.client.table('articles')\
+                .update(update_data)\
+                .eq('id', article_id)\
+                .execute()
+
+            if not result.data:
+                raise Exception(f"未找到ID为 {article_id} 的文章或更新失败")
+
+            return result.data[0]
+
+        except Exception as e:
+            error_msg = f"更新文章think和answer时发生错误: {str(e)}"
+            self.logger.error(error_msg)
+            raise Exception(error_msg)

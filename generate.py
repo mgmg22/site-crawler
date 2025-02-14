@@ -11,7 +11,10 @@ async def main():
         results = await writer.get_all_materials_last_questions(labelId=101)
         if results:
             item = results[2]
-            call_ai(item)
+            ai_response = call_ai(item)
+            print("AI 思考:", ai_response['reasoning_content'])
+            print("AI 回复:", ai_response['content'])
+            await writer.update_article_think_answer(item['id'], ai_response['reasoning_content'], ai_response['content'])
         else:
             print("无数据。")
     except Exception as e:
@@ -19,13 +22,11 @@ async def main():
 
 
 def call_ai(item):
-    prompt_text = f'''阅读所有Materials ，根据Question的要求作答，使用Markdown语法，第一行为文章标题，总分总结构（一个总起，三个分论点，一个总结，共五段。），分论点的小标题加粗且不换行，其中源于材料的论据用斜体样式
+    prompt_text = f'''阅读所有Materials ，根据Question的要求作答，使用Markdown语法，第一行为文章标题，总分总结构（一个总起，三个分论点，一个总结，共五段。），分论点的小标题加粗但不换行，其中源于材料的论据用醒目的Markdown样式来展示
 Materials: {item['materials']}
 Question: {item['questions'][-1]}
 '''
-    ai_response = call_ai_api(prompt_text)
-    print("AI 思考:", ai_response['reasoning_content'])
-    print("AI 回复:", ai_response['content'])
+    return call_ai_api(prompt_text)
 
 
 if __name__ == "__main__":
