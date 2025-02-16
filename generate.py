@@ -4,11 +4,11 @@ from logger_base import LoggerBase
 from deepai import call_ai_api
 
 
-async def main():
+async def generate_article(labelId):
     logger = LoggerBase()
     try:
         writer = SupabaseArticlesWriter(logger=logger)
-        results = await writer.get_all_materials_last_questions(labelId=101)
+        results = await writer.get_all_materials_last_questions(labelId=labelId)
         if results:
             for item in results:
                 ai_response = call_ai(item)
@@ -30,4 +30,18 @@ Question: {item['questions'][-1]}
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    province_strings = [
+        '101',
+        '102', '103', '104',
+        '105', '106', '107', '108', '109',
+        '110', '111', '112', '113', '114',
+        '115', '116', '117', '118', '119',
+        '120', '121', '122', '123', '124',
+        '125', '126', '127', '128', '129',
+        '5244', '130',
+        '131',
+        '132', '133',
+        '134', '3591', '2894'
+    ]
+    for province_code in province_strings:
+        asyncio.run(generate_article(province_code))
