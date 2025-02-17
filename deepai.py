@@ -17,10 +17,10 @@ def parse_response(response):
 
 
 def call_ai_api(prompt, model='deepseek-r1'):
-    print("-" * 50)
+    # print("-" * 50)
     if not API_KEY:
         raise ValueError("DEEP_API_KEY 未配置")
-    # print("prompt:", prompt)
+    print("prompt:", prompt)
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {API_KEY}'
@@ -39,13 +39,7 @@ def call_ai_api(prompt, model='deepseek-r1'):
 
         if not result.get('choices') or len(result['choices']) == 0:
             raise ValueError('AI 服务返回结果为空')
-
-        # 打印 reasoning_content （如果存在）
-        # reasoning_content = result['choices'][0]['message'].get('reasoning_content')
-        # if reasoning_content:
-        #     print("deepseek reasoning_content:", reasoning_content)
-
-        # return result['choices'][0]['message']['content']
+        # print("deepseek result:", result['choices'])
         return result['choices'][0]['message']
 
     except requests.exceptions.HTTPError as e:

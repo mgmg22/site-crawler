@@ -14,7 +14,10 @@ async def generate_article(labelId):
                 ai_response = call_ai(item)
                 print("AI 思考:", ai_response['reasoning_content'])
                 # print("AI 回复:", ai_response['content'])
-                await writer.update_article_think_answer(item['id'], ai_response['reasoning_content'], ai_response['content'].lstrip('\n'))
+                if ai_response['reasoning_content']:
+                    await writer.update_article_think_answer(item['id'], ai_response['reasoning_content'], ai_response['content'].lstrip('\n'))
+                else:
+                    print("无content")
         else:
             print("无数据。")
     except Exception as e:
@@ -31,17 +34,23 @@ Question: {item['questions'][-1]}
 
 if __name__ == "__main__":
     province_strings = [
-        '101',
-        '102', '103', '104',
-        '105', '106', '107', '108', '109',
-        '110', '111', '112', '113', '114',
-        '115', '116', '117', '118', '119',
-        '120', '121', '122', '123', '124',
-        '125', '126', '127', '128', '129',
-        '5244', '130',
-        '131',
-        '132', '133',
-        '134', '3591', '2894'
+        # '101',
+        # '102', '103', '104',
+        # '105',
+        '106',
+        #  '107', '108', '109',
+        # '110', '111', '112',
+        '113', '114',
+        '115', '116',
+        '117', '118', '119',
+        '120', '121',
+        '122', '123', '124',
+        '125', 
+        # '126', '127', '128', '129',
+        # '5244', '130',
+        # '131',
+        # '132', '133',
+        # '134', '3591', '2894'
     ]
     for province_code in province_strings:
         asyncio.run(generate_article(province_code))
