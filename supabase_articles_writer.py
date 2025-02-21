@@ -209,3 +209,37 @@ class SupabaseArticlesWriter:
             error_msg = f"根据 page_num 查询文章时发生错误: {str(e)}"
             self.logger.error(error_msg)
             raise Exception(error_msg)
+
+    async def update_article_thinks_and_deep_answers(self, page_num: int, thinks: list, deep_answers: list) -> Dict[str, Any]:
+        """
+        根据 page_num 更新文章的 thinks 和 deep_answers 字段
+
+        Returns:
+            Dict[str, Any]: 更新后的文章数据
+
+        Raises:
+            Exception: 当更新操作失败时抛出
+        """
+        try:
+            if not isinstance(page_num, int) or page_num < 0:
+                raise ValueError("page_num 必须是非负整数")
+
+            update_data = {
+                'thinks': thinks,
+                'deep_answers': deep_answers
+            }
+
+            result = self.client.table('articles')\
+                .update(update_data)\
+                .eq('page_num', page_num)\
+                .execute()
+
+            if not result.data:
+                raise Exception(f"未找到 page_num 为 {page_num} 的文章或更新失败")
+
+            return result.data[0]
+
+        except Exception as e:
+            error_msg = f"更新文章 thinks 和 deep_answers 时发生错误: {str(e)}"
+            self.logger.error(error_msg)
+            raise Exception(error_msg)

@@ -42,22 +42,54 @@ async def generate_answer(page_num):
         writer = SupabaseArticlesWriter(logger=logger)
         article = await writer.get_article_by_page_num(page_num=page_num)
 
-        if article:
-            try:
-                prompt_text = f'''根据Question的要求,阅读对应的Materials完成作答，不同作答要点可使用1.前缀和换行来区分，超过6个点考虑合并要点，不要使用Markdown加粗语法
-Question: {article['questions'][0]}
+        if article and article['questions']:
+            questions = article['questions'][:-1]  # 排除最后一个问题
+            expected_length = len(questions)  # 期望的答案数量
+
+            thinks = []
+            deep_answers = []
+            has_error = False
+
+            for i, question in enumerate(questions):
+                try:
+                    prompt_text = f'''根据Question的要求,阅读对应的Materials完成作答，不同作答要点可使用1.前缀和换行来区分，超过6个点考虑合并要点，不要使用Markdown加粗语法
+Question: {question}
 Materials: {article['materials']}
 '''
-                ai_response = call_ai_api(prompt_text)
+                    ai_response = call_ai_api(prompt_text)
 
-                reasoning_content = ai_response.get('reasoning_content').strip('\n')
-                content = ai_response.get('content', '').lstrip('\n') if ai_response.get('content') else ''
-                print("AI 回复reasoning_content:", reasoning_content)
-                print("AI 回复content:", content)
-            except Exception as e:
-                print(f"处理文章时出错 (page_num: {page_num}): {e}")
+                    reasoning_content = ai_response.get('reasoning_content').strip('\n')
+                    content = ai_response.get('content', '').lstrip('\n') if ai_response.get('content') else ''
+
+                    # 检查响应内容是否为空或仅包含空白字符
+                    if not reasoning_content.strip() or not content.strip():
+                        print(f"问题 {i + 1} 的AI响应内容为空")
+                        has_error = True
+                        break
+
+                    thinks.append(reasoning_content)
+                    deep_answers.append(content)
+                    print(f"问题 {i + 1}/{len(questions)}:")
+                    print("AI 回复content:", content)
+
+                except Exception as e:
+                    print(f"处理问题 {i + 1} 时出错 (page_num: {page_num}): {e}")
+                    has_error = True
+                    break
+
+            if not has_error and len(thinks) == expected_length and len(deep_answers) == expected_length:
+                thinks.append(article['think'])
+                deep_answers.append(article['answer'])
+                print("\n所有答案：", deep_answers)
+                try:
+                    await writer.update_article_thinks_and_deep_answers(page_num, thinks, deep_answers)
+                except Exception as e:
+                    print(f"更新数据库时发生错误: {e}")
+            else:
+                print(
+                    f"由于处理过程中出现错误或答案数量不完整（期望：{expected_length}，实际：thinks={len(thinks)}, deep_answers={len(deep_answers)}），跳过数据库更新")
         else:
-            print("未找到文章。")
+            print("未找到文章或文章没有问题。")
     except Exception as e:
         print(f"发生错误: {e}")
 
@@ -65,16 +97,11 @@ Materials: {article['materials']}
 if __name__ == "__main__":
     province_strings = [
         '101',
-        '102', '103', '104', '105', '106',
-        '107', '108', '109', '110', '111', '112',
-        '113', '114', '115', '116',
-        '117', '118', '119', '120', '121',
-        '122', '123', '124', '125',
-        '126', '127', '128', '129',
-        '5244', '130',
+        '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112',
+        '113', '114', '115', '116', '117', '118', '119', '120', '121',
+        '122', '123', '124', '125', '126', '127', '128', '129', '5244', '130',
         '131',
-        '132', '133',
-        '134', '3591', '2894'
+        '132', '133', '134', '3591', '2894'
     ]
     # for province_code in province_strings:
     #     asyncio.run(generate_article(province_code))
