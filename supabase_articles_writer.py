@@ -159,3 +159,53 @@ class SupabaseArticlesWriter:
             error_msg = f"更新文章think和answer时发生错误: {str(e)}"
             self.logger.error(error_msg)
             raise Exception(error_msg)
+
+    async def get_article_by_page_num(self, page_num: int) -> Optional[Dict[str, Any]]:
+        """
+        根据 page_num 获取文章的详细信息
+
+        Args:
+            page_num: 页码
+
+        Returns:
+            Optional[Dict[str, Any]]: 包含文章详细信息的字典，如果未找到则返回 None
+
+        Raises:
+            Exception: 当查询操作失败时抛出
+        """
+        try:
+            if not isinstance(page_num, int) or page_num < 0:
+                raise ValueError("page_num 必须是非负整数")
+
+            response = self.client.table('articles')\
+                .select('''
+                    page_num,
+                    materials,
+                    questions,
+                    answer,
+                    think
+                ''')\
+                .eq('page_num', page_num)\
+                .execute()
+
+            if not response.data or len(response.data) == 0:
+                self.logger.info(f"未找到 page_num 为 {page_num} 的文章")
+                return None
+
+            article = response.data[0]
+
+            # 格式化返回数据
+            formatted_article = {
+                'pageNum': article.get('page_num'),
+                'materials': article.get('materials'),
+                'questions': article.get('questions'),
+                'answer': article.get('answer', '').replace('<h2>', '').replace('</h2>', '') if isinstance(article.get('answer'), str) else article.get('answer'),
+                'think': article.get('think'),
+            }
+
+            return formatted_article
+
+        except Exception as e:
+            error_msg = f"根据 page_num 查询文章时发生错误: {str(e)}"
+            self.logger.error(error_msg)
+            raise Exception(error_msg)

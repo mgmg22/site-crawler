@@ -9,7 +9,7 @@ def call_ai_api(prompt, model='deepseek-r1'):
     print("-" * 50)
     if not API_KEY:
         raise ValueError("DEEP_API_KEY 未配置")
-    # print("prompt:", prompt)
+    print("prompt:", prompt)
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {API_KEY}'
