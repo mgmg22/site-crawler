@@ -5,17 +5,6 @@ API_KEY = os.getenv("DEEP_API_KEY")
 BASE_URL = 'https://api.lkeap.cloud.tencent.com/v1/chat/completions'
 
 
-def parse_response(response):
-    """
-    解析 API 的返回结果，移除首尾两行。
-    """
-    lines = response.strip().split('\n')
-    if len(lines) > 2:
-        lines.pop(0)  # 移除第一行
-        lines.pop()  # 移除最后一行
-    return '\n'.join(lines).strip()
-
-
 def call_ai_api(prompt, model='deepseek-r1'):
     print("-" * 50)
     if not API_KEY:
