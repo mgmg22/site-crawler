@@ -98,8 +98,8 @@ class SupabaseArticlesWriter:
         """
         try:
             query = self.client.table('articles')\
-                .select('materials, questions, last_question, id')\
-                .is_('think', None)
+                .select('materials, questions, think, answer, page_num, thinks, id')\
+                .is_('thinks', None)
 
             if labelId is not None:
                 query = query.eq('labelId', labelId)
