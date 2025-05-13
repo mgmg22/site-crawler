@@ -113,12 +113,9 @@ if __name__ == "__main__":
         '113', '114', '115', '116', '117', '118', '119', '120', '121',
         '122', '123', '124', '125', '126', '127', '128', '129', '5244', '130',
         '131',
-        '132', '133', '134', '3591', '2894'
+        '132', '133', '134', '3591',
+        '2894'
     ]
 
-    # 使用示例：处理单个标签
-    asyncio.run(generate_answer('101'))
-
-    # 或者处理所有标签
-    # for province_code in province_strings:
-    #     asyncio.run(generate_answer(province_code))
+    for province_code in province_strings:
+        asyncio.run(generate_answer(province_code))

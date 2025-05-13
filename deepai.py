@@ -2,10 +2,10 @@ import requests
 import os
 
 API_KEY = os.getenv("DEEP_API_KEY")
-BASE_URL = 'https://api.lkeap.cloud.tencent.com/v1/chat/completions'
+BASE_URL = 'https://api.siliconflow.cn/v1/chat/completions'
 
 
-def call_ai_api(prompt, model='deepseek-r1'):
+def call_ai_api(prompt, model='Pro/deepseek-ai/DeepSeek-R1'):
     print("-" * 50)
     if not API_KEY:
         raise ValueError("DEEP_API_KEY 未配置")

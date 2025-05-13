@@ -222,7 +222,8 @@ def get_list(labelId):
 
 if __name__ == "__main__":
     province_strings = [
-        '101', '102', '103', '104',
+        # '101',
+        '102', '103', '104',
         '105', '106', '107', '108', '109',
         '110', '111', '112', '113', '114',
         '115', '116', '117', '118', '119',
@@ -233,6 +234,5 @@ if __name__ == "__main__":
         '132', '133',
         '134', '3591', '2894'
     ]
-    # for province_code in province_strings:
-    #   get_list(province_code)
-    # get_list(104)
+    for province_code in province_strings:
+      get_list(province_code)
