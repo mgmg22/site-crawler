@@ -5,7 +5,7 @@ API_KEY = os.getenv("DEEP_API_KEY")
 BASE_URL = 'https://api.siliconflow.cn/v1/chat/completions'
 
 
-def call_ai_api(prompt, model='Pro/deepseek-ai/DeepSeek-R1'):
+def call_ai_api(prompt, model='deepseek-ai/DeepSeek-R1'):
     print("-" * 50)
     if not API_KEY:
         raise ValueError("DEEP_API_KEY 未配置")
@@ -37,7 +37,7 @@ def call_ai_api(prompt, model='Pro/deepseek-ai/DeepSeek-R1'):
             error_message = error_data.get('error', {}).get('message', response.reason)
         except:
             error_message = response.reason
-        raise Exception(f"腾讯云 API 错误: {response.status_code} - {error_message}") from e
+        raise Exception(f"大模型 API 错误: {response.status_code} - {error_message}") from e
     except Exception as e:
         print("调用 DeepAI 时发生错误:", e)
         raise
